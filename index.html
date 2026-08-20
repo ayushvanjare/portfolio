@@ -325,7 +325,65 @@
   }
 </style>
 </head>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+  // Initialize EmailJS
+  emailjs.init({
+    publicKey: "b9tTDbcaH00flH2cO"
+  });
+
+  function sendEmail(event) {
+    // VERY IMPORTANT:
+    // Stop the browser from submitting the form normally.
+    event.preventDefault();
+
+    const form = document.getElementById("contact-form");
+    const button = form.querySelector(".submit-btn");
+
+    button.disabled = true;
+    button.textContent = "Sending...";
+
+    emailjs.sendForm(
+      "service_amadrac",
+      "template_zdcg0mn",
+      form
+    )
+    .then(function(response) {
+
+      console.log("EmailJS SUCCESS:", response);
+
+      button.textContent = "Message Sent ✓";
+
+      form.reset();
+
+      setTimeout(function() {
+        button.textContent = "Send Message";
+        button.disabled = false;
+      }, 2500);
+
+    })
+    .catch(function(error) {
+
+      console.error("EmailJS ERROR:", error);
+
+      alert(
+        "Email failed to send.\n\n" +
+        "Status: " + (error.status || "Unknown") + "\n" +
+        "Message: " + (error.text || "Unknown error")
+      );
+
+      button.textContent = "Send Message";
+      button.disabled = false;
+    });
+
+    return false;
+  }
+</script>
+
 <body>
+  
 
 <header>
   <nav>
@@ -590,16 +648,58 @@
           <a href="https://github.com/" target="_blank" rel="noopener"><span class="ic">GH</span> github.com/ayushvanjare</a>
         </div>
       </div>
-      <form class="reveal" onsubmit="return handleSubmit(event)">
-        <div class="form-row">
-          <div class="field"><label for="name">Name</label><input id="name" type="text" required></div>
-          <div class="field"><label for="email">Email</label><input id="email" type="email" required></div>
-        </div>
-        <div class="field full" style="margin-bottom:16px;"><label for="subject">Subject</label><input id="subject" type="text" required></div>
-        <div class="field full" style="margin-bottom:16px;"><label for="message">Message</label><textarea id="message" required></textarea></div>
-        <button type="submit" class="btn btn-primary submit-btn">Send Message</button>
-      </form>
+     <form class="reveal" id="contact-form" onsubmit="sendEmail(event)">
+  <div class="form-row">
+    <div class="field">
+      <label for="name">Name</label>
+      <input
+        id="name"
+        name="name"
+        type="text"
+        placeholder="Your name"
+        required
+      >
     </div>
+
+    <div class="field">
+      <label for="email">Email</label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        placeholder="your@email.com"
+        required
+      >
+    </div>
+  </div>
+
+  <div class="field full" style="margin-bottom:16px;">
+    <label for="subject">Subject</label>
+    <input
+      id="subject"
+      name="title"
+      type="text"
+      placeholder="Subject"
+      required
+    >
+  </div>
+
+  <div class="field full" style="margin-bottom:16px;">
+    <label for="message">Message</label>
+    <textarea
+      id="message"
+      name="message"
+      placeholder="Write your message..."
+      required
+    ></textarea>
+  </div>
+
+  <button type="submit" class="btn btn-primary submit-btn">
+    Send Message
+  </button>
+</form>
+    </div>
+    
   </section>
 </main>
 
@@ -629,6 +729,8 @@
     </div>
   </div>
 </footer>
+
+
 
 <script>
   // Theme toggle
@@ -673,15 +775,65 @@
   revealEls.forEach(el => io.observe(el));
 
   // Contact form (no backend — friendly confirmation)
-  function handleSubmit(e){
+ 
+  // ==========================================
+  // EMAILJS CONTACT FORM
+  // ==========================================
+
+   emailjs.init({
+    publicKey: "b9tTDbcaH00flH2cO"
+  });
+
+  const contactForm = document.getElementById("contact-form");
+
+  contactForm.addEventListener("submit", function (e) {
     e.preventDefault();
-    const btn = e.target.querySelector('.submit-btn');
-    const original = btn.textContent;
-    btn.textContent = 'Message sent ✓';
-    e.target.reset();
-    setTimeout(() => { btn.textContent = original; }, 2500);
-    return false;
-  }
+
+    const btn = contactForm.querySelector(".submit-btn");
+    const originalText = btn.textContent;
+
+    btn.disabled = true;
+    btn.textContent = "Sending...";
+
+    emailjs.sendForm(
+      "service_amadrac",
+      "template_bl23zvr",
+      contactForm
+    )
+    .then(
+      function (response) {
+        console.log("EMAILJS SUCCESS:", response.status, response.text);
+
+        btn.textContent = "Message Sent ✓";
+        contactForm.reset();
+
+        setTimeout(function () {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2500);
+      },
+      function (error) {
+        console.error("EMAILJS FAILED");
+        console.error("Status:", error.status);
+        console.error("Text:", error.text);
+        console.error("Full Error:", error);
+
+        // SHOW ACTUAL ERROR
+        btn.textContent = "Email Failed";
+
+        alert(
+          "Email could not be sent.\n\n" +
+          "Status: " + error.status + "\n" +
+          "Error: " + error.text
+        );
+
+        setTimeout(function () {
+          btn.textContent = originalText;
+          btn.disabled = false;
+        }, 2500);
+      }
+    );
+  });
 </script>
 </body>
 </html>
